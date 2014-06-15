@@ -122,7 +122,7 @@ namespace MsgPack
 			return Unpack (buf, 0, buf.Length);
 		}
 
-		object Unpack (MsgPackReader reader)
+		public object Unpack (MsgPackReader reader)
 		{
 			if (!reader.Read ())
 				throw new FormatException ();
