@@ -155,6 +155,7 @@ namespace MsgPack
 			if (t.IsPrimitive) {
 				if (!reader.Read ()) throw new FormatException ();
 				if (t.Equals (typeof (int)) && reader.IsSigned ()) return reader.ValueSigned;
+				else if (t.Equals (typeof (int)) && reader.IsUnsigned ()) return (int)reader.ValueUnsigned;
 				else if (t.Equals (typeof (uint)) && reader.IsUnsigned ()) return reader.ValueUnsigned;
 				else if (t.Equals (typeof (float)) && reader.Type == TypePrefixes.Float) return reader.ValueFloat;
 				else if (t.Equals (typeof (double)) && reader.Type == TypePrefixes.Double) return reader.ValueDouble;
@@ -163,6 +164,10 @@ namespace MsgPack
 						return reader.ValueSigned64;
 					if (reader.IsSigned ())
 						return (long)reader.ValueSigned;
+					if (reader.IsUnsigned64 ())
+						return (long)reader.ValueUnsigned64;
+					if (reader.IsUnsigned ())
+						return (long)reader.ValueUnsigned;
 				} else if (t.Equals (typeof (ulong))) {
 					if (reader.IsUnsigned64 ())
 						return reader.ValueUnsigned64;
