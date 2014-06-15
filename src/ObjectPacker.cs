@@ -216,7 +216,12 @@ namespace MsgPack
 			if (!reader.IsMap ())
 				throw new FormatException ();
 
-			object o = FormatterServices.GetUninitializedObject (t);
+            object o;
+			if (typeof (UnityEngine.ScriptableObject).IsAssignableFrom (t)) {
+				o = UnityEngine.ScriptableObject.CreateInstance (t);
+			} else {
+				o = FormatterServices.GetUninitializedObject (t);
+			}
 			ReflectionCacheEntry entry = ReflectionCache.Lookup (t);
 			int members = (int)reader.Length;
 			for (int i = 0; i < members; i ++) {
