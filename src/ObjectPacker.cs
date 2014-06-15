@@ -221,8 +221,11 @@ namespace MsgPack
 				reader.ReadValueRaw (_buf, 0, (int)reader.Length);
 				string name = Encoding.UTF8.GetString (_buf, 0, (int)reader.Length);
 				FieldInfo f;
-				if (!entry.FieldMap.TryGetValue (name, out f))
-					throw new FormatException ();
+				if (!entry.FieldMap.TryGetValue (name, out f)) {
+					// found unknown field; skip (by forwarding the pointer of the reader)
+					new BoxingPacker().Unpack(reader);
+					continue;
+				}
 				f.SetValue (o, Unpack (reader, f.FieldType));
 			}
 
