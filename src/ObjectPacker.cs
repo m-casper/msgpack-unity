@@ -197,6 +197,15 @@ namespace MsgPack
 					ary.SetValue (Unpack (reader, et), i);
 				return ary;
 			}
+			if (t.IsEnum) {
+				if (!reader.Read ())
+					throw new FormatException ();
+				if (reader.Type == TypePrefixes.PositiveFixNum)
+					return Enum.ToObject(t, reader.ValueSigned);
+				if (reader.Type == TypePrefixes.NegativeFixNum)
+					return Enum.ToObject(t, reader.ValueUnsigned);
+				throw new FormatException ();
+			}
 
 			if (!reader.Read ())
 				throw new FormatException ();
