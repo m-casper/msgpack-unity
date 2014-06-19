@@ -200,10 +200,20 @@ namespace MsgPack
 			if (t.IsEnum) {
 				if (!reader.Read ())
 					throw new FormatException ();
-				if (reader.Type == TypePrefixes.PositiveFixNum)
-					return Enum.ToObject(t, reader.ValueSigned);
-				if (reader.Type == TypePrefixes.NegativeFixNum)
-					return Enum.ToObject(t, reader.ValueUnsigned);
+				if (reader.IsSigned ())
+					return Enum.ToObject (t, reader.ValueSigned);
+				if (reader.IsSigned64 ())
+					return Enum.ToObject (t, reader.ValueSigned64);
+				if (reader.IsUnsigned ())
+					return Enum.ToObject (t, reader.ValueUnsigned);
+				if (reader.IsUnsigned64 ())
+					return Enum.ToObject (t, reader.ValueUnsigned64);
+				if (reader.IsRaw ()) {
+					CheckBufferSize ((int)reader.Length);
+					reader.ReadValueRaw (_buf, 0, (int)reader.Length);
+					var enumString = Encoding.UTF8.GetString (_buf, 0, (int)reader.Length);
+					return Enum.Parse (t, enumString);
+				}
 				throw new FormatException ();
 			}
 
