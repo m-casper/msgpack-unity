@@ -97,6 +97,11 @@ namespace MsgPack
 				return;
 			}
 
+			if (t.IsEnum) {
+				writer.Write ((int)o);
+				return;
+			}
+
 			ReflectionCacheEntry entry = ReflectionCache.Lookup (t);
 			writer.WriteMapHeader (entry.FieldMap.Count);
 			foreach (KeyValuePair<string, FieldInfo> pair in entry.FieldMap) {
