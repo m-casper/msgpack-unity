@@ -40,6 +40,8 @@ namespace MsgPack
 
 			PackerMapping.Add (typeof (string), StringPacker);
 			UnpackerMapping.Add (typeof (string), StringUnpacker);
+			PackerMapping.Add (typeof (DateTime), DateTimePacker);
+			UnpackerMapping.Add (typeof (DateTime), DateTimeUnpacker);
 		}
 
 		public byte[] Pack (object o)
@@ -291,6 +293,29 @@ namespace MsgPack
 			packer.CheckBufferSize ((int)reader.Length);
 			reader.ReadValueRaw (packer._buf, 0, (int)reader.Length);
 			return Encoding.UTF8.GetString (packer._buf, 0, (int)reader.Length);
+		}
+
+		// [DateTime packer/unpacker]
+		//
+		// To keep timezone simply and correctly, the packer/unpacker convert value
+		// to/from UNIX timestamp.
+
+		static void DateTimePacker (ObjectPacker packer, MsgPackWriter writer, object o)
+		{
+			var epoc = new DateTime(1970, 1, 1).ToLocalTime ();
+			writer.Write ((long)((DateTime)o - epoc).TotalSeconds);
+		}
+
+		static object DateTimeUnpacker (ObjectPacker packer, MsgPackReader reader)
+		{
+			if (!reader.Read ())
+				throw new FormatException ();
+			if (reader.Type == TypePrefixes.Nil)
+				return null;
+			if (!reader.IsUnsigned ())
+				throw new FormatException ();
+			var epoc = new DateTime(1970, 1, 1).ToLocalTime ();
+			return epoc.AddSeconds (reader.ValueUnsigned);
 		}
 	}
 }
