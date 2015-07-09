@@ -22,14 +22,15 @@ using System.Reflection;
 
 namespace MsgPack
 {
-	public struct Ext {
-		sbyte Type;
-		byte[] Data;
-
+	public struct Ext
+	{
 		public Ext(sbyte type, byte[] data) {
 			Type = type;
 			Data = data;
 		}
+
+		public sbyte Type { get; private set; }
+		public byte[] Data { get; private set; }
 	}
 
 	public class BoxingPacker
@@ -230,7 +231,7 @@ namespace MsgPack
 						break;
 					}
 					var data = new byte[reader.Length];
-					reader.ReadValueRaw (data, 0, reader.Length);
+					reader.ReadValueRaw (data, 0, (int)reader.Length);
 					return new Ext (et, data);
 				default:
 					throw new FormatException ();

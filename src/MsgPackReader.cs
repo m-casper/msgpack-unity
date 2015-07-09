@@ -23,8 +23,11 @@ namespace MsgPack
 	public class MsgPackReader
 	{
 		Stream _strm;
-		Encoding _encoding = Encoding.UTF8;
+		byte[] _tmp0 = new byte[8];
+		byte[] _tmp1 = new byte[8];
 
+		Encoding _encoding = Encoding.UTF8;
+		//Decoder _decoder = Encoding.UTF8.GetDecoder ();
 		byte[] _buf = new byte[64];
 
 		public MsgPackReader (Stream strm)
@@ -103,8 +106,7 @@ namespace MsgPack
 
 		public bool Read ()
 		{
-			byte[] tmp0 = new byte[8];
-			byte[] tmp1 = new byte[8];
+			byte[] tmp0 = _tmp0;
 			int x = _strm.ReadByte ();
 			if (x < 0)
 				return false; // EOS
@@ -282,8 +284,8 @@ namespace MsgPack
 		}
 
 		public float ReadSingle() {
-			byte[] tmp0 = new byte[4];
-			byte[] tmp1 = new byte[4];
+			byte[] tmp0 = _tmp0;
+			byte[] tmp1 = _tmp1;
 			_strm.Read (tmp0, 0, 4);
 			if (BitConverter.IsLittleEndian) {
 				tmp1 [0] = tmp0 [3];
@@ -298,8 +300,8 @@ namespace MsgPack
 		}
 
 		public double ReadDouble() {
-			byte[] tmp0 = new byte[8];
-			byte[] tmp1 = new byte[8];
+			byte[] tmp0 = _tmp0;
+			byte[] tmp1 = _tmp1;
 
 			_strm.Read (tmp0, 0, 8);
 			if (BitConverter.IsLittleEndian) {
