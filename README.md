@@ -11,6 +11,17 @@ This library is based on Kazuki's MessagePack for C#
 
 To install this, copy files in src to Assets folder in your project.
 
+## Compiler Symbol
+
+`MSGPACK_UNPACK_DOWNCAST_DOUBLE_TO_FLOAT`
+
+If specified, MessagePack reader will downcast `double` typed value to `float`
+if type of awaiting field is `float`.<br/>
+This is useful in communication with other MessagePack library of weaker typed
+language like `PHP`, which never uses `single` but `double` for floating point
+value.
+
+
 ## See also
 
   Official Library           : https://github.com/msgpack/msgpack

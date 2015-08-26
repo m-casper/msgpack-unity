@@ -164,7 +164,14 @@ namespace MsgPack
 				if (t.Equals (typeof (int)) && reader.IsSigned ()) return reader.ValueSigned;
 				else if (t.Equals (typeof (int)) && reader.IsUnsigned ()) return (int)reader.ValueUnsigned;
 				else if (t.Equals (typeof (uint)) && reader.IsUnsigned ()) return reader.ValueUnsigned;
+#if MSGPACK_UNPACK_DOWNCAST_DOUBLE_TO_FLOAT
+				else if (t.Equals (typeof (float))) {
+					if (reader.Type == TypePrefixes.Float) return reader.ValueFloat;
+					if (reader.Type == TypePrefixes.Double) return (float)reader.ValueDouble;
+				}
+#else
 				else if (t.Equals (typeof (float)) && reader.Type == TypePrefixes.Float) return reader.ValueFloat;
+#endif
 				else if (t.Equals (typeof (double)) && reader.Type == TypePrefixes.Double) return reader.ValueDouble;
 				else if (t.Equals (typeof (long))) {
 					if (reader.IsSigned64 ())
