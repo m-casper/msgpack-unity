@@ -269,7 +269,13 @@ namespace MsgPack
 					new BoxingPacker().Unpack(reader);
 					continue;
 				}
-				f.SetValue (o, Unpack (reader, f.FieldType));
+				try {
+					f.SetValue (o, Unpack (reader, f.FieldType));
+				} catch (FormatException e) {
+					var msg = string.Format ("Cannot set \"{0}\" typed value to {1}.{2}({3})",
+						Enum.GetName (typeof(TypePrefixes), reader.Type), t.Name, name, f.FieldType.Name);
+					throw new FormatException (msg, e);
+				}
 			}
 
 			IDeserializationCallback callback = o as IDeserializationCallback;
