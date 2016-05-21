@@ -24,13 +24,16 @@ namespace MsgPack
 {
 	public struct Ext
 	{
-		public Ext(sbyte type, byte[] data) {
-			Type = type;
-			Data = data;
+		sbyte _type;
+		byte[] _data;
+
+		public Ext (sbyte type, byte[] data) {
+			_type = type;
+			_data = data;
 		}
 
-		public sbyte Type { get; private set; }
-		public byte[] Data { get; private set; }
+		public sbyte Type { get { return _type; } private set {} }
+		public byte[] Data { get { return _data; } private set {} }
 	}
 
 	public class BoxingPacker

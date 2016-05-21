@@ -104,6 +104,27 @@ namespace MsgPack
 				return;
 			}
 
+			if (t.IsGenericType) {
+				Type typeDef = t.GetGenericTypeDefinition ();
+				if (typeDef == typeof(Dictionary<,>)) {
+					PropertyInfo countPros = t.GetProperty ("Count");
+					int count = (int)countPros.GetValue (o, null);
+					PropertyInfo keysPros = t.GetProperty ("Keys");
+					System.Collections.IEnumerable keys = keysPros.GetValue (o, null) as System.Collections.IEnumerable;
+					if (keys != null) {
+						PropertyInfo itemPros = t.GetProperty ("Item");
+						writer.WriteMapHeader (count);
+						foreach( var key in keys )
+						{
+							var value = itemPros.GetValue (o, new object[] { key });
+							Pack (writer, key);
+							Pack (writer, value);
+						}
+					}
+					return;
+				}
+			}
+
 			ReflectionCacheEntry entry = ReflectionCache.Lookup (t);
 			writer.WriteMapHeader (entry.FieldMap.Count);
 			foreach (KeyValuePair<string, FieldInfo> pair in entry.FieldMap) {
@@ -211,6 +232,7 @@ namespace MsgPack
 					ary.SetValue (Unpack (reader, et), i);
 				return ary;
 			}
+
 			if (t.IsEnum) {
 				if (!reader.Read ())
 					throw new FormatException ();
@@ -229,6 +251,25 @@ namespace MsgPack
 					return Enum.Parse (t, enumString);
 				}
 				throw new FormatException ();
+			}
+
+			if (t.IsGenericType) {
+				Type typeDef = t.GetGenericTypeDefinition ();
+				if (typeDef == typeof(Dictionary<,>)) {
+					if (!reader.Read () || !reader.IsMap ())
+						throw new FormatException ();
+					Type[] args = t.GetGenericArguments (); // args[0] = key type, args[1] = value type
+					MethodInfo addMethod = t.GetMethod ("Add");
+					object dict = Activator.CreateInstance (t);
+					int count = (int)reader.Length;
+					while (count > 0) {
+						object key = Unpack (reader, args[0]);
+						object value = Unpack (reader, args[1]);
+						addMethod.Invoke (dict, new object[] { key, value });
+						count--;
+					}
+					return dict;
+				}
 			}
 
 			if (!reader.Read ())
